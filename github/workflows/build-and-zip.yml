@@ -1,0 +1,35 @@
+name: Build and Zip Deployment
+
+on:
+  push:
+    branches:
+      - main  # יופעל בכל פוש ל-main
+
+jobs:
+  build-and-zip:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3  # מוריד את הקוד מה-repo
+
+      - name: Install Dependencies
+        run: npm install  # מתקין את החבילות
+
+      - name: Build Project
+        run: npm run build  # מריץ את הבנייה
+
+      - name: Collect Required Files
+        run: |
+          mkdir -p whizmanage-pro
+          rsync -av --exclude=node_modules --exclude=.git --exclude=whizmanage-pro . whizmanage-pro/
+
+      - name: Create ZIP Archive
+        run: zip -r whizmanage-pro.zip whizmanage-pro/
+
+      - name: Upload ZIP as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: whizmanage-pro
+          path: whizmanage-pro.zip
+
